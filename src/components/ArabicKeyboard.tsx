@@ -1,6 +1,27 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { useSettings } from '../context/SettingsContext';
+import {
+  getKeySizeClasses,
+  getKeySpacingClasses,
+  getRowSpacingClasses,
+  getHoverEffectClasses,
+  getShadowClasses,
+  getBorderRadiusClasses,
+  getPositionClasses,
+  getScaleClasses,
+  getFontWeightClasses,
+  getResizeClasses,
+  getKeyStyles,
+  getKeyboardContainerStyles,
+  getTextInputStyles,
+  getButtonStyles,
+  getSlideAnimationClass,
+  getZIndexStyle,
+  playSound,
+  triggerHaptic,
+} from '../utils/settingsUtils';
 
 export interface Key {
   normal: string;
@@ -16,6 +37,7 @@ export interface ArabicKeyboardProps {
 }
 
 const ArabicKeyboard: React.FC<ArabicKeyboardProps> = ({ isVisible, onToggle, onWordComplete }) => {
+  const { settings } = useSettings();
   const [currentText, setCurrentText] = useState('');
   const [isCtrlPressed, setIsCtrlPressed] = useState(false);
   const [isShiftPressed, setIsShiftPressed] = useState(false);
@@ -154,8 +176,14 @@ const ArabicKeyboard: React.FC<ArabicKeyboardProps> = ({ isVisible, onToggle, on
 
   const handleEnter = () => {
     if (currentText.trim()) {
+      playSound('complete', settings);
       onWordComplete(currentText.trim());
-      setCurrentText('');
+      if (settings.behavior.clearOnSubmit) {
+        setCurrentText('');
+      }
+      if (settings.behavior.hideOnWordComplete) {
+        onToggle();
+      }
     }
   };
 
@@ -165,6 +193,10 @@ const ArabicKeyboard: React.FC<ArabicKeyboardProps> = ({ isVisible, onToggle, on
   };
 
   const handleKeyClick = (key: Key) => {
+    // Play sound and trigger haptic feedback
+    playSound('click', settings);
+    triggerHaptic('key-press', settings);
+    
     if (key.special === 'backspace') {
       handleBackspace();
     } else if (key.special === 'enter') {
@@ -187,10 +219,10 @@ const ArabicKeyboard: React.FC<ArabicKeyboardProps> = ({ isVisible, onToggle, on
       let char = key.normal;
       if (isCtrlPressed && key.ctrl) {
         char = key.ctrl;
-        setIsCtrlPressed(false);
+        setIsCtrlPressed(settings.behavior.ctrlAutoReset ? false : isCtrlPressed);
       } else if (isShiftPressed && key.shift) {
         char = key.shift;
-        setIsShiftPressed(false); // Auto-reset shift after use
+        setIsShiftPressed(settings.behavior.shiftAutoReset ? false : isShiftPressed);
       }
       insertText(char);
     }
@@ -207,88 +239,144 @@ const ArabicKeyboard: React.FC<ArabicKeyboardProps> = ({ isVisible, onToggle, on
   };
 
   const getKeyClass = (key: Key): string => {
-    const baseClass = "font-medium py-3 px-4 rounded-lg min-w-[50px] text-lg transition-all duration-150 hover:scale-105 shadow-lg";
+    const keySizeClasses = getKeySizeClasses(settings.layout.keySize);
+    const borderRadius = getBorderRadiusClasses(settings.layout.borderRadius);
+    const shadow = getShadowClasses(settings.layout.keyShadow);
+    const hover = getHoverEffectClasses(settings.layout.hoverEffect);
+    const fontWeight = key.special ? 
+      getFontWeightClasses(settings.typography.specialKeyFontWeight) : 
+      getFontWeightClasses(settings.typography.keyFontWeight);
     
+    const baseClass = `${fontWeight} ${keySizeClasses} ${borderRadius} transition-all duration-150 ${hover} ${shadow}`;
+    
+    // Special key variations for larger widths
+    if (key.special === 'backspace' || key.special === 'enter') {
+      return `${baseClass} px-6`;
+    }
+    if (key.special === 'space') {
+      return `${baseClass} flex-1 max-w-md`;
+    }
+    if (key.special === 'ctrl' || key.special === 'shift' || key.special === 'alt') {
+      return `${baseClass} px-8`;
+    }
+    if (['١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩', '٠'].includes(key.normal)) {
+      return `${baseClass} min-w-[40px]`;
+    }
+    
+    return baseClass;
+  };
+
+  const getKeyStyle = (key: Key): React.CSSProperties => {
     // Tashkeel marks
     const tashkeelMarks = ['َ', 'ً', 'ُ', 'ٌ', 'ِ', 'ٍ', 'ْ', 'ّ', 'ـ'];
     if (tashkeelMarks.includes(key.normal) || tashkeelMarks.includes(key.shift)) {
-      return `${baseClass} bg-gray-400 hover:bg-gray-500 text-gray-800 font-bold`;
+      return getKeyStyles('tashkeel', settings);
     }
     
     // Numbers
     if (['١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩', '٠'].includes(key.normal)) {
-      return `${baseClass} bg-blue-500 hover:bg-blue-600 text-white font-bold min-w-[40px]`;
+      return getKeyStyles('number', settings);
     }
     
     // Alif variants (purple when Ctrl is pressed)
     if (key.ctrl && isCtrlPressed) {
-      return `${baseClass} bg-purple-500 hover:bg-purple-600 text-white font-bold`;
+      return getKeyStyles('special', settings, isCtrlPressed ? 'active' : 'normal', 'alif-variant');
     }
     
     // Special keys
     if (key.special === 'backspace') {
-      return `${baseClass} bg-yellow-500 hover:bg-yellow-600 text-white font-bold px-6`;
+      return getKeyStyles('special', settings, 'normal', 'backspace');
     }
     if (key.special === 'enter') {
-      return `${baseClass} bg-green-500 hover:bg-green-600 text-white font-bold px-6`;
+      return getKeyStyles('special', settings, 'normal', 'enter');
     }
     if (key.special === 'space') {
-      return `${baseClass} bg-blue-500 hover:bg-blue-600 text-white font-bold flex-1 max-w-md`;
+      return getKeyStyles('special', settings, 'normal', 'space');
     }
     if (key.special === 'clear') {
-      return `${baseClass} bg-orange-500 hover:bg-orange-600 text-white font-bold`;
+      return getKeyStyles('special', settings, 'normal', 'clear');
     }
     if (key.special === 'ctrl') {
-      return `${baseClass} ${isCtrlPressed ? 'bg-purple-600' : 'bg-purple-500'} hover:bg-purple-600 text-white font-bold px-8`;
+      return getKeyStyles('special', settings, isCtrlPressed ? 'active' : 'normal', 'ctrl');
     }
     if (key.special === 'shift') {
-      return `${baseClass} ${isShiftPressed ? 'bg-blue-600' : 'bg-blue-500'} hover:bg-blue-600 text-white font-bold px-8`;
+      return getKeyStyles('special', settings, isShiftPressed ? 'active' : 'normal', 'shift');
     }
     if (key.special === 'alt') {
-      return `${baseClass} bg-gray-500 hover:bg-gray-600 text-white font-bold px-8`;
+      return getKeyStyles('special', settings, 'normal', 'alt');
     }
     
     // Regular keys
-    return `${baseClass} bg-slate-600 hover:bg-slate-500 text-white`;
+    return getKeyStyles('regular', settings);
   };
 
   if (!isVisible) {
+    const buttonPositionClasses = getPositionClasses(settings.layout.position);
+    const buttonStyles = {
+      ...getButtonStyles('open', settings),
+      ...getZIndexStyle('button', settings),
+    };
+    
     return (
       <button
-        onClick={onToggle}
-        className="fixed bottom-0 left-1/2 transform -translate-x-1/2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-t-xl shadow-lg transition-all duration-300 z-50"
+        onClick={() => {
+          playSound('open-close', settings);
+          triggerHaptic('open-close', settings);
+          onToggle();
+        }}
+        style={buttonStyles}
+        className={`fixed ${buttonPositionClasses} px-8 py-3 ${getBorderRadiusClasses(settings.layout.borderRadius)} shadow-lg transition-all duration-300`}
       >
         <span className="text-lg font-semibold">Open</span>
       </button>
     );
   }
 
+  const keyboardPositionClasses = getPositionClasses(settings.layout.position);
+  const keyboardScaleClasses = getScaleClasses(settings.layout.scale);
+  const slideAnimation = getSlideAnimationClass(settings, isVisible);
+  const keyboardContainerStyles = {
+    ...getKeyboardContainerStyles(settings),
+    ...getZIndexStyle('keyboard', settings),
+  };
+  const overlayStyles = getZIndexStyle('overlay', settings);
+
   return (
     <>
       {/* Invisible overlay to detect clicks outside */}
-      {isVisible && (
+      {isVisible && settings.behavior.clickOutsideToClose && (
         <div 
-          className="fixed inset-0 z-30"
+          style={overlayStyles}
+          className="fixed inset-0"
           onClick={() => {
             if (blurTimeoutRef.current) {
               clearTimeout(blurTimeoutRef.current);
             }
+            playSound('open-close', settings);
+            triggerHaptic('open-close', settings);
             onToggle();
           }}
         />
       )}
       
       <div 
-        className={`fixed bottom-0 left-1/2 transform -translate-x-1/2 z-40 w-full max-w-4xl px-4 transition-transform duration-500 ease-in-out ${
-          isVisible ? 'translate-y-0' : 'translate-y-full'
-        }`}
+        className={`fixed ${keyboardPositionClasses} w-full ${keyboardScaleClasses} px-4 transition-transform ease-in-out ${slideAnimation}`}
+        style={{
+          ...keyboardContainerStyles,
+          transitionDuration: `${settings.layout.slideAnimationDuration}ms`,
+        }}
       >
-      <div className="bg-white rounded-t-2xl shadow-2xl overflow-hidden">
+      <div className={`bg-white ${getBorderRadiusClasses(settings.layout.borderRadius)} shadow-2xl overflow-hidden`} style={{ backgroundColor: settings.theme.colors.inputBackground }}>
         {/* Arrow Button */}
         <div className="flex justify-center p-2 bg-gray-100 border-b">
           <button
-            onClick={onToggle}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors"
+            onClick={() => {
+              playSound('open-close', settings);
+              triggerHaptic('open-close', settings);
+              onToggle();
+            }}
+            style={getButtonStyles('close', settings)}
+            className={`px-6 py-2 ${getBorderRadiusClasses(settings.layout.borderRadius)} transition-colors`}
           >
             <span className="text-lg font-semibold">Close</span>
           </button>
@@ -307,15 +395,21 @@ const ArabicKeyboard: React.FC<ArabicKeyboardProps> = ({ isVisible, onToggle, on
               }
             }}
             onBlur={() => {
-              blurTimeoutRef.current = setTimeout(() => {
-                setIsFocused(false);
-                // Don't auto-close keyboard - let user manually close it
-              }, 200);
+              if (settings.behavior.autoHideOnBlur) {
+                blurTimeoutRef.current = setTimeout(() => {
+                  setIsFocused(false);
+                  onToggle();
+                }, settings.behavior.autoHideDelay);
+              }
             }}
-            placeholder="اكتب هنا..."
-            rows={1}
-            className="w-full text-4xl font-arabic resize-none border-2 border-gray-200 rounded-lg p-3 outline-none text-right focus:border-blue-500 transition-colors text-black"
-            style={{ direction: 'rtl' }}
+            placeholder={settings.behavior.placeholderText}
+            rows={settings.behavior.textareaRows}
+            maxLength={settings.behavior.maxTextLength || undefined}
+            className={`w-full text-4xl font-arabic ${getResizeClasses(settings.behavior.textareaResize)} border-2 p-3 outline-none text-right focus:border-blue-500 transition-colors text-black`}
+            style={{
+              ...getTextInputStyles(settings),
+              borderColor: isFocused ? settings.theme.colors.inputBorderFocused : settings.theme.colors.inputBorder,
+            }}
           />
         </div>
 
@@ -327,15 +421,17 @@ const ArabicKeyboard: React.FC<ArabicKeyboardProps> = ({ isVisible, onToggle, on
               clearTimeout(blurTimeoutRef.current);
             }
           }}
-          className="bg-slate-700 p-6 shadow-2xl"
+          className="p-6 shadow-2xl"
+          style={{ backgroundColor: settings.theme.colors.keyboardBackground }}
         >
           {keyboardLayout.map((row, rowIndex) => (
-            <div key={rowIndex} className="flex justify-center mb-3 gap-2">
+            <div key={rowIndex} className={`flex justify-center ${getRowSpacingClasses(settings.layout.rowSpacing)} ${getKeySpacingClasses(settings.layout.keySpacing)}`}>
               {row.map((key, keyIndex) => (
                 <button
                   key={keyIndex}
                   onClick={() => handleKeyClick(key)}
                   className={getKeyClass(key)}
+                  style={getKeyStyle(key)}
                 >
                   {getKeyDisplay(key)}
                 </button>
