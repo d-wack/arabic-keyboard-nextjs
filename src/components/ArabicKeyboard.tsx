@@ -383,7 +383,7 @@ const ArabicKeyboard: React.FC<ArabicKeyboardProps> = ({ isVisible, onToggle, on
         </div>
 
         {/* Text Input Area */}
-        <div className="p-4">
+        <div className="px-6 py-4">
           <textarea
             ref={textAreaRef}
             value={currentText}
@@ -405,7 +405,7 @@ const ArabicKeyboard: React.FC<ArabicKeyboardProps> = ({ isVisible, onToggle, on
             placeholder={settings.behavior.placeholderText}
             rows={settings.behavior.textareaRows}
             maxLength={settings.behavior.maxTextLength || undefined}
-            className={`w-full text-4xl font-arabic ${getResizeClasses(settings.behavior.textareaResize)} border-2 p-3 outline-none text-right focus:border-blue-500 transition-colors text-black`}
+            className={`w-full text-4xl font-arabic ${getResizeClasses(settings.behavior.textareaResize)} border-2 ${getBorderRadiusClasses(settings.layout.borderRadius)} p-3 outline-none text-right transition-colors text-black`}
             style={{
               ...getTextInputStyles(settings),
               borderColor: isFocused ? settings.theme.colors.inputBorderFocused : settings.theme.colors.inputBorder,
