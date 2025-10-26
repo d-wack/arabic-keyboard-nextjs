@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 
-interface Word {
+export interface Word {
   id: string;
   text: string;
   x: number;
@@ -12,7 +12,7 @@ interface Word {
   color: string;
 }
 
-interface WordDisplayProps {
+export interface WordDisplayProps {
   words: string[];
 }
 

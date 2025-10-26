@@ -2,14 +2,14 @@
 
 import { useState, useRef, useEffect } from 'react';
 
-interface Key {
+export interface Key {
   normal: string;
   shift: string;
   ctrl?: string;
   special?: string;
 }
 
-interface ArabicKeyboardProps {
+export interface ArabicKeyboardProps {
   isVisible: boolean;
   onToggle: () => void;
   onWordComplete: (word: string) => void;

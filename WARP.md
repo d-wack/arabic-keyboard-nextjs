@@ -47,7 +47,7 @@ The application follows a simple 3-component architecture:
      - Shift mode: Tashkeel marks (َ ً ُ ٌ ِ ٍ ْ ّ ـ)
      - Ctrl mode: Alif variants (أ إ آ)
    - Uses textarea with RTL direction for text input
-   - Calls `onWordComplete` callback when Enter or Space is pressed
+   - Calls `onWordComplete` callback when Enter is pressed
 
 3. **`src/components/WordDisplay.tsx`** (Floating Words)
    - Displays completed words as floating elements
@@ -76,7 +76,7 @@ page.tsx (manages global state)
 - **Keyboard Layout**: Uses a 2D array of `Key` objects with `normal`, `shift`, and optional `ctrl` properties
 - **Text Insertion**: Uses textarea selection API for cursor-aware text insertion
 - **Modifier Key Behavior**: Ctrl deactivates after use; Shift stays active until toggled
-- **Word Completion**: Triggered by Enter (clears text) or Space (keeps space)
+- **Word Completion**: Triggered only by Enter key (clears text after completion)
 - **Styling**: Uses Tailwind CSS v4 with PostCSS, custom Arabic font stack (Amiri primary)
 
 ## Testing Approach
