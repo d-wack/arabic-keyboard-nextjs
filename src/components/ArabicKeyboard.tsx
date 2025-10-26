@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 interface Key {
   normal: string;
@@ -22,6 +22,15 @@ const ArabicKeyboard: React.FC<ArabicKeyboardProps> = ({ isVisible, onToggle, on
   const [isFocused, setIsFocused] = useState(true);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const blurTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Cleanup timeout on unmount to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      if (blurTimeoutRef.current) {
+        clearTimeout(blurTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Standard Arabic keyboard layout (KBDA1)
   const keyboardLayout: Key[][] = [
@@ -116,8 +125,19 @@ const ArabicKeyboard: React.FC<ArabicKeyboardProps> = ({ isVisible, onToggle, on
     
     const textarea = textAreaRef.current;
     const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
     
-    if (start > 0) {
+    if (start !== end) {
+      // Delete selected text
+      const newText = currentText.substring(0, start) + currentText.substring(end);
+      setCurrentText(newText);
+      
+      setTimeout(() => {
+        textarea.setSelectionRange(start, start);
+        textarea.focus();
+      }, 0);
+    } else if (start > 0) {
+      // Delete single character
       const newText = currentText.substring(0, start - 1) + currentText.substring(start);
       setCurrentText(newText);
       
@@ -129,9 +149,6 @@ const ArabicKeyboard: React.FC<ArabicKeyboardProps> = ({ isVisible, onToggle, on
   };
 
   const handleSpace = () => {
-    if (currentText.trim()) {
-      onWordComplete(currentText.trim());
-    }
     insertText(' ');
   };
 
@@ -173,6 +190,7 @@ const ArabicKeyboard: React.FC<ArabicKeyboardProps> = ({ isVisible, onToggle, on
         setIsCtrlPressed(false);
       } else if (isShiftPressed && key.shift) {
         char = key.shift;
+        setIsShiftPressed(false); // Auto-reset shift after use
       }
       insertText(char);
     }
@@ -291,7 +309,7 @@ const ArabicKeyboard: React.FC<ArabicKeyboardProps> = ({ isVisible, onToggle, on
             onBlur={() => {
               blurTimeoutRef.current = setTimeout(() => {
                 setIsFocused(false);
-                onToggle();
+                // Don't auto-close keyboard - let user manually close it
               }, 200);
             }}
             placeholder="اكتب هنا..."

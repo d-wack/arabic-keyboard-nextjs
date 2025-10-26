@@ -47,7 +47,7 @@ const WordDisplay: React.FC<WordDisplayProps> = ({ words }) => {
       setDisplayWords(prev => {
         const updated = [...prev, newWord];
         // Keep only the last 15 words to prevent performance issues
-        return updated.length > 15 ? updated.slice(-15) : updated;
+        return updated.length >= 15 ? updated.slice(-15) : updated;
       });
     }
   }, [words]);
