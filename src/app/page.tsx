@@ -1,65 +1,85 @@
-import Image from "next/image";
+'use client';
+
+import { useState } from 'react';
+import ArabicKeyboard from '@/components/ArabicKeyboard';
+import WordDisplay from '@/components/WordDisplay';
 
 export default function Home() {
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const [completedWords, setCompletedWords] = useState<string[]>([]);
+
+  const toggleKeyboard = () => {
+    setIsKeyboardVisible(!isKeyboardVisible);
+  };
+
+  const handleWordComplete = (word: string) => {
+    if (word.trim()) {
+      setCompletedWords(prev => [...prev, word.trim()]);
+    }
+  };
+
+  const clearWords = () => {
+    setCompletedWords([]);
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div className="min-h-screen bg-white relative overflow-hidden">
+      <WordDisplay words={completedWords} />
+
+      <div className="relative z-20 min-h-screen flex flex-col items-center justify-center p-8">
+        <div className="text-center max-w-2xl">
+          <h1 className="text-6xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-6">
+            Arabic Keyboard
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="text-xl text-gray-700 mb-12">
+            Type beautiful Arabic words and watch them float across your screen
           </p>
+
+          <div className="space-y-6">
+            <button
+              onClick={toggleKeyboard}
+              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-full text-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
+            >
+              {isKeyboardVisible ? 'Hide Keyboard' : 'Open Arabic Keyboard'}
+            </button>
+
+            {completedWords.length > 0 && (
+              <div className="space-y-4">
+                <p className="text-gray-600">Words typed: {completedWords.length}</p>
+                <button
+                  onClick={clearWords}
+                  className="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-200"
+                >
+                  Clear All Words
+                </button>
+              </div>
+            )}
+          </div>
+
+          {completedWords.length === 0 && (
+            <div className="mt-16 p-6 bg-white/70 rounded-xl backdrop-blur-sm border border-white/20">
+              <p className="text-gray-600 mb-4">✨ How to use:</p>
+              <ol className="text-left text-gray-700 space-y-2">
+                <li><strong>1. Open Keyboard:</strong> Click the button above to start typing</li>
+                <li><strong>2. Tashkeel:</strong> Click the <span className="bg-gray-200 px-2 py-1 rounded">Shift</span> button, then click any letter key to add diacritical marks</li>
+                <li><strong>3. Alif Variants:</strong> Click <span className="bg-purple-200 px-2 py-1 rounded">Ctrl</span>, then click ف (for إ), ل (for أ), or لا (for آ)</li>
+                <li><strong>4. Complete Words:</strong> Press the green <span className="bg-green-200 px-2 py-1 rounded">↵</span> button to complete a word</li>
+                <li><strong>5. Watch &amp; Remove:</strong> Words float on screen - click them to remove</li>
+              </ol>
+              <div className="mt-4 p-3 bg-blue-50 rounded-lg text-sm">
+                <p className="font-semibold text-blue-800">💡 Quick Tip:</p>
+                <p className="text-blue-700">Toggle Shift to see which letters give you tashkeel marks!</p>
+              </div>
+            </div>
+          )}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </div>
+
+      <ArabicKeyboard
+        isVisible={isKeyboardVisible}
+        onToggle={toggleKeyboard}
+        onWordComplete={handleWordComplete}
+      />
     </div>
   );
 }
