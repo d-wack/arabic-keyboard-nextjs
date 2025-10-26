@@ -11,6 +11,7 @@ import {
   getBorderRadiusClasses,
   getPositionClasses,
   getScaleClasses,
+  getScaleTransform,
   getFontWeightClasses,
   getResizeClasses,
   getKeyStyles,
@@ -334,10 +335,13 @@ const ArabicKeyboard: React.FC<ArabicKeyboardProps> = ({ isVisible, onToggle, on
 
   const keyboardPositionClasses = getPositionClasses(settings.layout.position);
   const keyboardScaleClasses = getScaleClasses(settings.layout.scale);
+  const scaleTransform = getScaleTransform(settings.layout.scale);
   const slideAnimation = getSlideAnimationClass(settings, isVisible);
   const keyboardContainerStyles = {
     ...getKeyboardContainerStyles(settings),
     ...getZIndexStyle('keyboard', settings),
+    transform: `scale(${scaleTransform})`,
+    transformOrigin: settings.layout.position.startsWith('top') ? 'top center' : 'bottom center',
   };
   const overlayStyles = getZIndexStyle('overlay', settings);
 
@@ -360,15 +364,15 @@ const ArabicKeyboard: React.FC<ArabicKeyboardProps> = ({ isVisible, onToggle, on
       )}
       
       <div 
-        className={`fixed ${keyboardPositionClasses} w-full ${keyboardScaleClasses} px-4 transition-transform ease-in-out ${slideAnimation}`}
+        className={`fixed ${keyboardPositionClasses} w-full ${keyboardScaleClasses} transition-transform ease-in-out ${slideAnimation}`}
         style={{
           ...keyboardContainerStyles,
           transitionDuration: `${settings.layout.slideAnimationDuration}ms`,
         }}
       >
       <div className={`bg-white ${getBorderRadiusClasses(settings.layout.borderRadius)} shadow-2xl overflow-hidden`} style={{ backgroundColor: settings.theme.colors.inputBackground }}>
-        {/* Arrow Button */}
-        <div className="flex justify-center p-2 bg-gray-100 border-b">
+        {/* Close Button */}
+        <div className="flex justify-end p-2 bg-gray-100 border-b">
           <button
             onClick={() => {
               playSound('open-close', settings);

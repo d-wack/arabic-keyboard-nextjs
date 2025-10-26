@@ -4,6 +4,7 @@ import { useState } from 'react';
 import ArabicKeyboard from '@/components/ArabicKeyboard';
 import WordDisplay from '@/components/WordDisplay';
 import { SettingsProvider } from '@/context/SettingsContext';
+import SettingsTestPanel from '@/components/SettingsTestPanel';
 
 export default function Home() {
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
@@ -27,6 +28,7 @@ export default function Home() {
     <SettingsProvider>
       <div className="min-h-screen bg-white relative overflow-hidden">
         <WordDisplay words={completedWords} />
+        <SettingsTestPanel />
 
         <div className="relative z-20 min-h-screen flex flex-col items-center justify-center p-8">
           <div className="text-center max-w-2xl">

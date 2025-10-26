@@ -149,19 +149,27 @@ export function getPositionClasses(position: KeyboardSettings['layout']['positio
  * Get Tailwind classes for keyboard scale
  */
 export function getScaleClasses(scale: KeyboardSettings['layout']['scale']): string {
+  // Always use max-w-4xl as base, we'll scale with transform
+  return 'max-w-4xl';
+}
+
+/**
+ * Get transform scale value for keyboard size
+ */
+export function getScaleTransform(scale: KeyboardSettings['layout']['scale']): number {
   switch (scale) {
     case 'small':
-      return 'max-w-sm'; // 384px
+      return 0.7; // 70% of normal size
     case 'medium':
-      return 'max-w-2xl'; // 672px
+      return 0.85; // 85% of normal size
     case 'large':
-      return 'max-w-4xl'; // 896px
+      return 1.0; // 100% - normal size (default)
     case 'xl':
-      return 'max-w-6xl'; // 1152px
+      return 1.15; // 115% of normal size
     case 'custom':
-      return ''; // Will use custom width
+      return 1.0; // Use custom width instead
     default:
-      return 'max-w-4xl';
+      return 1.0;
   }
 }
 
