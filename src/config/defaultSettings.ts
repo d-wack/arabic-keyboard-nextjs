@@ -141,21 +141,14 @@ export interface BehaviorSettings {
 
 export interface SoundSettings {
   // Sound Effects
-  clickSound: 'none' | 'soft' | 'normal' | 'loud' | 'custom';
+  soundEnabled: boolean; // Master sound toggle
+  masterVolume: number; // 0-100, applies to all sounds
+  
+  clickSoundEnabled: boolean;
   clickSoundVolume: number; // 0-100
-  clickSoundFile?: string; // URL or path to custom audio
   
-  openCloseSound: 'none' | 'slide' | 'pop' | 'custom';
-  openCloseSoundVolume: number;
-  openCloseSoundFile?: string;
-  
-  errorSound: 'none' | 'beep' | 'alert' | 'custom';
-  errorSoundVolume: number;
-  errorSoundFile?: string;
-  
-  completeSound: 'none' | 'success' | 'ding' | 'custom';
-  completeSoundVolume: number;
-  completeSoundFile?: string;
+  openCloseSoundEnabled: boolean;
+  openCloseSoundVolume: number; // 0-100
   
   // Haptic Feedback (mobile)
   hapticFeedback: boolean;
@@ -412,21 +405,14 @@ export const DEFAULT_SETTINGS: KeyboardSettings = {
   
   // Sound Settings
   sound: {
-    clickSound: 'custom',
+    soundEnabled: true,
+    masterVolume: 80,
+    
+    clickSoundEnabled: true,
     clickSoundVolume: 40,
-    clickSoundFile: '/sounds/ui_tap-variant-04.ogg',
     
-    openCloseSound: 'custom',
+    openCloseSoundEnabled: true,
     openCloseSoundVolume: 70,
-    openCloseSoundFile: '/sounds/ui_unlock.ogg',
-    
-    errorSound: 'none',
-    errorSoundVolume: 50,
-    errorSoundFile: undefined,
-    
-    completeSound: 'none',
-    completeSoundVolume: 50,
-    completeSoundFile: undefined,
     
     hapticFeedback: false,
     hapticKeyPress: 'none',

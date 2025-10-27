@@ -177,7 +177,6 @@ const ArabicKeyboard: React.FC<ArabicKeyboardProps> = ({ isVisible, onToggle, on
 
   const handleEnter = () => {
     if (currentText.trim()) {
-      playSound('complete', settings);
       onWordComplete(currentText.trim());
       if (settings.behavior.clearOnSubmit) {
         setCurrentText('');

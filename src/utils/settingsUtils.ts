@@ -450,39 +450,36 @@ export function getZIndexStyle(
  * Play sound effect
  */
 export async function playSound(
-  soundType: 'click' | 'open-close' | 'error' | 'complete',
+  soundType: 'click' | 'open-close',
   settings: KeyboardSettings
 ): Promise<void> {
   const { sound } = settings;
 
-  let soundFile: string | undefined;
+  // Check if sound is globally enabled
+  if (!sound.soundEnabled) {
+    return;
+  }
+
+  let soundFile: string;
   let volume: number;
   let enabled: boolean;
 
   switch (soundType) {
     case 'click':
-      enabled = sound.clickSound !== 'none';
-      volume = sound.clickSoundVolume / 100;
-      soundFile = sound.clickSoundFile || getBuiltInSound(sound.clickSound);
+      enabled = sound.clickSoundEnabled;
+      volume = (sound.clickSoundVolume / 100) * (sound.masterVolume / 100);
+      soundFile = '/sounds/ui_tap-variant-04.ogg';
       break;
     case 'open-close':
-      enabled = sound.openCloseSound !== 'none';
-      volume = sound.openCloseSoundVolume / 100;
-      soundFile = sound.openCloseSoundFile || getBuiltInSound(sound.openCloseSound);
+      enabled = sound.openCloseSoundEnabled;
+      volume = (sound.openCloseSoundVolume / 100) * (sound.masterVolume / 100);
+      soundFile = '/sounds/ui_unlock.ogg';
       break;
-    case 'error':
-      enabled = sound.errorSound !== 'none';
-      volume = sound.errorSoundVolume / 100;
-      soundFile = sound.errorSoundFile || getBuiltInSound(sound.errorSound);
-      break;
-    case 'complete':
-      enabled = sound.completeSound !== 'none';
-      volume = sound.completeSoundVolume / 100;
-      soundFile = sound.completeSoundFile || getBuiltInSound(sound.completeSound);
-      break;
+    default:
+      return;
   }
 
-  if (!enabled || !soundFile) {
+  if (!enabled) {
     return;
   }
 
@@ -493,26 +490,6 @@ export async function playSound(
   } catch (error) {
     console.error('Error playing sound:', error);
   }
-}
-
-/**
- * Get built-in sound URL (placeholder - would be actual URLs in production)
- */
-function getBuiltInSound(soundName: string): string | undefined {
-  // These would be actual sound file URLs in production
-  const sounds: Record<string, string> = {
-    soft: '/sounds/click-soft.mp3',
-    normal: '/sounds/click-normal.mp3',
-    loud: '/sounds/click-loud.mp3',
-    slide: '/sounds/slide.mp3',
-    pop: '/sounds/pop.mp3',
-    beep: '/sounds/beep.mp3',
-    alert: '/sounds/alert.mp3',
-    success: '/sounds/success.mp3',
-    ding: '/sounds/ding.mp3',
-  };
-
-  return sounds[soundName];
 }
 
 // ============================================================================
