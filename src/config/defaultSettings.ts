@@ -412,9 +412,9 @@ export const DEFAULT_SETTINGS: KeyboardSettings = {
   
   // Sound Settings
   sound: {
-    clickSound: 'none',
-    clickSoundVolume: 50,
-    clickSoundFile: undefined,
+    clickSound: 'custom',
+    clickSoundVolume: 60,
+    clickSoundFile: '/sounds/keypress.ogg',
     
     openCloseSound: 'custom',
     openCloseSoundVolume: 70,
