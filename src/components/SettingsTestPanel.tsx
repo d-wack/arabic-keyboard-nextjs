@@ -4,7 +4,7 @@ import { useSettings } from '@/context/SettingsContext';
 import { THEME_PRESETS } from '@/config/defaultSettings';
 
 export default function SettingsTestPanel() {
-  const { settings, updateLayout, updateTheme, updateSound, applyPreset, resetSettings } = useSettings();
+  const { settings, updateLayout, updateTheme, updateSound, updateKeyboardLayout, applyPreset, resetSettings } = useSettings();
 
   return (
     <div className="fixed top-4 right-4 z-50 bg-white p-4 rounded-lg shadow-xl border-2 border-gray-200 max-w-xs max-h-[90vh] overflow-y-auto">
@@ -97,6 +97,23 @@ export default function SettingsTestPanel() {
           />
         </div>
       </div>
+
+      {/* Physical Keyboard */}
+      <div className="mb-4 p-3 bg-green-50 rounded border border-green-200">
+        <div className="flex items-center justify-between">
+          <label className="text-sm font-semibold text-gray-900">⌨️ Physical Keyboard Highlight:</label>
+          <input
+            type="checkbox"
+            checked={settings.keyboardLayout.enablePhysicalKeyboard}
+            onChange={(e) => updateKeyboardLayout({ enablePhysicalKeyboard: e.target.checked })}
+            className="w-5 h-5 cursor-pointer"
+          />
+        </div>
+        <p className="text-xs text-gray-600 mt-1">
+          Highlights keys when you type on your physical Arabic keyboard
+        </p>
+      </div>
+      
       {/* Theme Preset */}
       <div className="mb-4">
         <label className="block text-sm font-semibold mb-2 text-gray-800">Theme Preset:</label>

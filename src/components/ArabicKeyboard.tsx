@@ -43,6 +43,7 @@ const ArabicKeyboard: React.FC<ArabicKeyboardProps> = ({ isVisible, onToggle, on
   const [isCtrlPressed, setIsCtrlPressed] = useState(false);
   const [isShiftPressed, setIsShiftPressed] = useState(false);
   const [isFocused, setIsFocused] = useState(true);
+  const [pressedKey, setPressedKey] = useState<string | null>(null);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const blurTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -54,6 +55,52 @@ const ArabicKeyboard: React.FC<ArabicKeyboardProps> = ({ isVisible, onToggle, on
       }
     };
   }, []);
+
+  // Physical keyboard support - highlight keys when pressed
+  useEffect(() => {
+    if (!settings.keyboardLayout.enablePhysicalKeyboard || !isVisible) {
+      return;
+    }
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Update shift/ctrl state
+      if (e.key === 'Shift') {
+        setIsShiftPressed(true);
+      }
+      if (e.key === 'Control') {
+        setIsCtrlPressed(true);
+      }
+
+      // Set pressed key for visual feedback
+      const key = e.key;
+      setPressedKey(key);
+
+      // Find matching virtual key and highlight it
+      playSound('click', settings);
+      triggerHaptic('key-press', settings);
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      // Clear shift/ctrl state
+      if (e.key === 'Shift') {
+        setIsShiftPressed(false);
+      }
+      if (e.key === 'Control') {
+        setIsCtrlPressed(false);
+      }
+
+      // Clear pressed key
+      setPressedKey(null);
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, [settings, isVisible]);
 
   // Standard Arabic keyboard layout (KBDA1)
   const keyboardLayout: Key[][] = [
@@ -246,6 +293,15 @@ const ArabicKeyboard: React.FC<ArabicKeyboardProps> = ({ isVisible, onToggle, on
     return key.normal;
   };
 
+  // Check if this virtual key matches the pressed physical key
+  const isKeyPressed = (key: Key): boolean => {
+    if (!pressedKey) return false;
+    
+    // Check if the pressed physical key matches this virtual key
+    const displayChar = getKeyDisplay(key);
+    return displayChar === pressedKey || key.normal === pressedKey || key.shift === pressedKey;
+  };
+
   const getKeyClass = (key: Key): string => {
     const keySizeClasses = getKeySizeClasses(settings.layout.keySize);
     const borderRadius = getBorderRadiusClasses(settings.layout.borderRadius);
@@ -275,50 +331,62 @@ const ArabicKeyboard: React.FC<ArabicKeyboardProps> = ({ isVisible, onToggle, on
   };
 
   const getKeyStyle = (key: Key): React.CSSProperties => {
+    let baseStyles: React.CSSProperties;
+
     // Tashkeel marks
     const tashkeelMarks = ['َ', 'ً', 'ُ', 'ٌ', 'ِ', 'ٍ', 'ْ', 'ّ', 'ـ'];
     if (tashkeelMarks.includes(key.normal) || tashkeelMarks.includes(key.shift)) {
-      return getKeyStyles('tashkeel', settings);
+      baseStyles = getKeyStyles('tashkeel', settings);
     }
-    
     // Numbers
-    if (['١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩', '٠'].includes(key.normal)) {
-      return getKeyStyles('number', settings);
+    else if (['١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩', '٠'].includes(key.normal)) {
+      baseStyles = getKeyStyles('number', settings);
     }
-    
     // Alif variants (purple when Ctrl is pressed)
-    if (key.ctrl && isCtrlPressed) {
-      return getKeyStyles('special', settings, isCtrlPressed ? 'active' : 'normal', 'alif-variant');
+    else if (key.ctrl && isCtrlPressed) {
+      baseStyles = getKeyStyles('special', settings, isCtrlPressed ? 'active' : 'normal', 'alif-variant');
     }
-    
     // Special keys
-    if (key.special === 'backspace') {
-      return getKeyStyles('special', settings, 'normal', 'backspace');
+    else if (key.special === 'backspace') {
+      baseStyles = getKeyStyles('special', settings, 'normal', 'backspace');
     }
-    if (key.special === 'enter') {
-      return getKeyStyles('special', settings, 'normal', 'enter');
+    else if (key.special === 'enter') {
+      baseStyles = getKeyStyles('special', settings, 'normal', 'enter');
     }
-    if (key.special === 'space') {
-      return getKeyStyles('special', settings, 'normal', 'space');
+    else if (key.special === 'space') {
+      baseStyles = getKeyStyles('special', settings, 'normal', 'space');
     }
-    if (key.special === 'clear') {
-      return getKeyStyles('special', settings, 'normal', 'clear');
+    else if (key.special === 'clear') {
+      baseStyles = getKeyStyles('special', settings, 'normal', 'clear');
     }
-    if (key.special === 'close') {
-      return getKeyStyles('special', settings, 'normal', 'close');
+    else if (key.special === 'close') {
+      baseStyles = getKeyStyles('special', settings, 'normal', 'close');
     }
-    if (key.special === 'ctrl') {
-      return getKeyStyles('special', settings, isCtrlPressed ? 'active' : 'normal', 'ctrl');
+    else if (key.special === 'ctrl') {
+      baseStyles = getKeyStyles('special', settings, isCtrlPressed ? 'active' : 'normal', 'ctrl');
     }
-    if (key.special === 'shift') {
-      return getKeyStyles('special', settings, isShiftPressed ? 'active' : 'normal', 'shift');
+    else if (key.special === 'shift') {
+      baseStyles = getKeyStyles('special', settings, isShiftPressed ? 'active' : 'normal', 'shift');
     }
-    if (key.special === 'alt') {
-      return getKeyStyles('special', settings, 'normal', 'alt');
+    else if (key.special === 'alt') {
+      baseStyles = getKeyStyles('special', settings, 'normal', 'alt');
+    }
+    // Regular keys
+    else {
+      baseStyles = getKeyStyles('regular', settings);
+    }
+
+    // Add highlight effect if this key is pressed
+    if (isKeyPressed(key)) {
+      return {
+        ...baseStyles,
+        transform: 'scale(0.95)',
+        boxShadow: '0 0 0 3px rgba(59, 130, 246, 0.5), inset 0 2px 4px rgba(0, 0, 0, 0.2)',
+        filter: 'brightness(1.2)',
+      };
     }
     
-    // Regular keys
-    return getKeyStyles('regular', settings);
+    return baseStyles;
   };
 
   if (!isVisible) {

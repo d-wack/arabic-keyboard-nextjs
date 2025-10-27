@@ -427,7 +427,7 @@ export const DEFAULT_SETTINGS: KeyboardSettings = {
     
     enableLayoutSwitching: false,
     
-    enablePhysicalKeyboard: false,
+    enablePhysicalKeyboard: true,
     physicalKeyMapping: 'positional',
     showKeyboardOnPhysicalKey: true,
     
