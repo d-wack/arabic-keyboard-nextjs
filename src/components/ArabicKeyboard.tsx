@@ -2,6 +2,8 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useSettings } from '../context/SettingsContext';
+import SettingsButton from './SettingsButton';
+import SettingsModal from './SettingsModal';
 import {
   getKeySizeClasses,
   getKeySpacingClasses,
@@ -44,6 +46,7 @@ const ArabicKeyboard: React.FC<ArabicKeyboardProps> = ({ isVisible, onToggle, on
   const [isShiftPressed, setIsShiftPressed] = useState(false);
   const [isFocused, setIsFocused] = useState(true);
   const [pressedKey, setPressedKey] = useState<string | null>(null);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const blurTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -457,8 +460,12 @@ const ArabicKeyboard: React.FC<ArabicKeyboardProps> = ({ isVisible, onToggle, on
         }}
       >
       <div className={`bg-white ${getBorderRadiusClasses(settings.layout.borderRadius)} shadow-2xl overflow-hidden`} style={{ backgroundColor: settings.theme.colors.inputBackground }}>
-        {/* Text Input Area */}
+        {/* Text Input Area with Settings Button */}
         <div className="px-6 py-4 flex items-start gap-2">
+          <SettingsButton 
+            onClick={() => setIsSettingsOpen(true)}
+            className="self-center"
+          />
           <textarea
             ref={textAreaRef}
             value={currentText}
@@ -535,6 +542,12 @@ const ArabicKeyboard: React.FC<ArabicKeyboardProps> = ({ isVisible, onToggle, on
         </div>
       </div>
     </div>
+    
+    {/* Settings Modal */}
+    <SettingsModal 
+      isOpen={isSettingsOpen}
+      onClose={() => setIsSettingsOpen(false)}
+    />
     </>
   );
 };

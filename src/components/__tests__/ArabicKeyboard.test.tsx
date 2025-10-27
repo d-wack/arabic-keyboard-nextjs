@@ -88,6 +88,20 @@ describe('ArabicKeyboard Component', () => {
       expect(mockOnToggle).toHaveBeenCalledTimes(1);
     });
 
+    it('should render settings button when keyboard is visible', () => {
+      renderWithSettings(
+        <ArabicKeyboard
+          isVisible={true}
+          onToggle={mockOnToggle}
+          onWordComplete={mockOnWordComplete}
+        />
+      );
+
+      // Settings button should be present
+      const settingsButton = screen.getByRole('button', { name: /open settings/i });
+      expect(settingsButton).toBeInTheDocument();
+    });
+
     it('should close keyboard when clicking overlay', () => {
       const { container } = renderWithSettings(
         <ArabicKeyboard

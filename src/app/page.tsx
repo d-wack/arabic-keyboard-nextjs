@@ -28,7 +28,8 @@ export default function Home() {
     <SettingsProvider>
       <div className="min-h-screen bg-white relative overflow-hidden">
         <WordDisplay words={completedWords} />
-        <SettingsTestPanel />
+        {/* Dev-only Settings Test Panel - hidden in production */}
+        {process.env.NODE_ENV === 'development' && <SettingsTestPanel />}
 
         <div className="relative z-20 min-h-screen flex flex-col items-center justify-center p-8">
           <div className="text-center max-w-2xl">
