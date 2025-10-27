@@ -238,6 +238,8 @@ const ArabicKeyboard: React.FC<ArabicKeyboardProps> = ({ isVisible, onToggle, on
   };
 
   const handleClear = () => {
+    playSound('clear', settings);
+    triggerHaptic('key-press', settings);
     setCurrentText('');
     textAreaRef.current?.focus();
   };

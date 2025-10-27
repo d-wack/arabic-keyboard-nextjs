@@ -450,7 +450,7 @@ export function getZIndexStyle(
  * Play sound effect
  */
 export async function playSound(
-  soundType: 'click' | 'open-close',
+  soundType: 'click' | 'open-close' | 'clear',
   settings: KeyboardSettings
 ): Promise<void> {
   const { sound } = settings;
@@ -474,6 +474,11 @@ export async function playSound(
       enabled = sound.openCloseSoundEnabled;
       volume = (sound.openCloseSoundVolume / 100) * (sound.masterVolume / 100);
       soundFile = '/sounds/ui_unlock.ogg';
+      break;
+    case 'clear':
+      enabled = sound.clickSoundEnabled;
+      volume = (sound.clickSoundVolume / 100) * (sound.masterVolume / 100);
+      soundFile = '/sounds/clear.ogg';
       break;
     default:
       return;
