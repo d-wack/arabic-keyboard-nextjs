@@ -416,9 +416,9 @@ export const DEFAULT_SETTINGS: KeyboardSettings = {
     clickSoundVolume: 50,
     clickSoundFile: undefined,
     
-    openCloseSound: 'none',
-    openCloseSoundVolume: 50,
-    openCloseSoundFile: undefined,
+    openCloseSound: 'custom',
+    openCloseSoundVolume: 70,
+    openCloseSoundFile: '/sounds/ui_unlock.ogg',
     
     errorSound: 'none',
     errorSoundVolume: 50,
