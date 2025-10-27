@@ -244,6 +244,10 @@ export function getKeyStyles(
         styles.backgroundColor = state === 'hover' ? colors.clearKeyBackgroundHover : colors.clearKeyBackground;
         styles.color = colors.specialKeyText;
         break;
+      case 'close':
+        styles.backgroundColor = state === 'hover' ? colors.clearKeyBackgroundHover : colors.clearKeyBackground;
+        styles.color = colors.specialKeyText;
+        break;
       case 'ctrl':
         if (state === 'active') {
           styles.backgroundColor = colors.ctrlKeyBackgroundActive;

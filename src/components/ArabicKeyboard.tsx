@@ -122,7 +122,7 @@ const ArabicKeyboard: React.FC<ArabicKeyboardProps> = ({ isVisible, onToggle, on
       { normal: 'Alt', shift: 'Alt', special: 'alt' },
       { normal: 'مسافة', shift: 'مسافة', special: 'space' },
       { normal: 'Alt', shift: 'Alt', special: 'alt' },
-      { normal: 'مسح', shift: 'مسح', special: 'clear' },
+      { normal: 'إغلاق', shift: 'إغلاق', special: 'close' },
     ],
   ];
 
@@ -206,6 +206,11 @@ const ArabicKeyboard: React.FC<ArabicKeyboardProps> = ({ isVisible, onToggle, on
       handleSpace();
     } else if (key.special === 'clear') {
       handleClear();
+    } else if (key.special === 'close') {
+      playSound('open-close', settings);
+      triggerHaptic('open-close', settings);
+      onToggle();
+      return;
     } else if (key.special === 'ctrl') {
       setIsCtrlPressed(!isCtrlPressed);
       textAreaRef.current?.focus();
@@ -257,7 +262,7 @@ const ArabicKeyboard: React.FC<ArabicKeyboardProps> = ({ isVisible, onToggle, on
     if (key.special === 'space') {
       return `${baseClass} flex-1 max-w-md`;
     }
-    if (key.special === 'ctrl' || key.special === 'shift' || key.special === 'alt') {
+    if (key.special === 'ctrl' || key.special === 'shift' || key.special === 'alt' || key.special === 'close') {
       return `${baseClass} px-8`;
     }
     if (['١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩', '٠'].includes(key.normal)) {
@@ -297,6 +302,9 @@ const ArabicKeyboard: React.FC<ArabicKeyboardProps> = ({ isVisible, onToggle, on
     if (key.special === 'clear') {
       return getKeyStyles('special', settings, 'normal', 'clear');
     }
+    if (key.special === 'close') {
+      return getKeyStyles('special', settings, 'normal', 'close');
+    }
     if (key.special === 'ctrl') {
       return getKeyStyles('special', settings, isCtrlPressed ? 'active' : 'normal', 'ctrl');
     }
@@ -326,9 +334,17 @@ const ArabicKeyboard: React.FC<ArabicKeyboardProps> = ({ isVisible, onToggle, on
           onToggle();
         }}
         style={buttonStyles}
-        className={`fixed ${buttonPositionClasses} px-8 py-3 ${getBorderRadiusClasses(settings.layout.borderRadius)} shadow-lg transition-all duration-300`}
+        className={`fixed ${buttonPositionClasses} p-2 ${getBorderRadiusClasses(settings.layout.borderRadius)} shadow-lg transition-all duration-300 hover:scale-105`}
       >
-        <span className="text-lg font-semibold">Open</span>
+        <svg 
+          xmlns="http://www.w3.org/2000/svg" 
+          height="40px" 
+          viewBox="0 -960 960 960" 
+          width="40px" 
+          fill="currentColor"
+        >
+          <path d="M146.67-200q-27 0-46.84-20.17Q80-240.33 80-266.67v-426.66q0-27 19.83-46.84Q119.67-760 146.67-760h666.66q27 0 46.84 19.83Q880-720.33 880-693.33v426.66q0 26.34-19.83 46.5Q840.33-200 813.33-200H146.67Zm0-66.67h666.66v-426.66H146.67v426.66Zm160-56.66h346.66V-390H306.67v66.67ZM202-446.67h66.67v-66.66H202v66.66Zm122.67 0h66.66v-66.66h-66.66v66.66Zm122 0h66.66v-66.66h-66.66v66.66Zm122.66 0H636v-66.66h-66.67v66.66Zm122 0H758v-66.66h-66.67v66.66ZM202-570h66.67v-66.67H202V-570Zm122.67 0h66.66v-66.67h-66.66V-570Zm122 0h66.66v-66.67h-66.66V-570Zm122.66 0H636v-66.67h-66.67V-570Zm122 0H758v-66.67h-66.67V-570ZM146.67-266.67v-426.66 426.66Z"/>
+        </svg>
       </button>
     );
   }
@@ -371,23 +387,8 @@ const ArabicKeyboard: React.FC<ArabicKeyboardProps> = ({ isVisible, onToggle, on
         }}
       >
       <div className={`bg-white ${getBorderRadiusClasses(settings.layout.borderRadius)} shadow-2xl overflow-hidden`} style={{ backgroundColor: settings.theme.colors.inputBackground }}>
-        {/* Close Button */}
-        <div className="flex justify-end p-2 bg-gray-100 border-b">
-          <button
-            onClick={() => {
-              playSound('open-close', settings);
-              triggerHaptic('open-close', settings);
-              onToggle();
-            }}
-            style={getButtonStyles('close', settings)}
-            className={`px-6 py-2 ${getBorderRadiusClasses(settings.layout.borderRadius)} transition-colors`}
-          >
-            <span className="text-lg font-semibold">Close</span>
-          </button>
-        </div>
-
         {/* Text Input Area */}
-        <div className="px-6 py-4">
+        <div className="px-6 py-4 flex items-start gap-2">
           <textarea
             ref={textAreaRef}
             value={currentText}
@@ -409,12 +410,19 @@ const ArabicKeyboard: React.FC<ArabicKeyboardProps> = ({ isVisible, onToggle, on
             placeholder={settings.behavior.placeholderText}
             rows={settings.behavior.textareaRows}
             maxLength={settings.behavior.maxTextLength || undefined}
-            className={`w-full text-4xl font-arabic ${getResizeClasses(settings.behavior.textareaResize)} border-2 ${getBorderRadiusClasses(settings.layout.borderRadius)} p-3 outline-none text-right transition-colors text-black`}
+            className={`flex-1 text-4xl font-arabic ${getResizeClasses(settings.behavior.textareaResize)} border-2 ${getBorderRadiusClasses(settings.layout.borderRadius)} p-3 outline-none text-right transition-colors text-black`}
             style={{
               ...getTextInputStyles(settings),
               borderColor: isFocused ? settings.theme.colors.inputBorderFocused : settings.theme.colors.inputBorder,
             }}
           />
+          <button
+            onClick={handleClear}
+            style={getKeyStyles('special', settings, 'normal', 'clear')}
+            className={`px-4 py-2 ${getBorderRadiusClasses(settings.layout.borderRadius)} transition-colors hover:scale-105 text-lg font-semibold whitespace-nowrap self-stretch`}
+          >
+            مسح
+          </button>
         </div>
 
         {/* Keyboard */}
@@ -435,9 +443,21 @@ const ArabicKeyboard: React.FC<ArabicKeyboardProps> = ({ isVisible, onToggle, on
                   key={keyIndex}
                   onClick={() => handleKeyClick(key)}
                   className={getKeyClass(key)}
-                  style={getKeyStyle(key)}
+                  style={key.special === 'close' ? getButtonStyles('close', settings) : getKeyStyle(key)}
                 >
-                  {getKeyDisplay(key)}
+                  {key.special === 'close' ? (
+                    <svg 
+                      xmlns="http://www.w3.org/2000/svg" 
+                      height="40px" 
+                      viewBox="0 -960 960 960" 
+                      width="40px" 
+                      fill="currentColor"
+                    >
+                      <path d="M836-57 90.33-801.33 138-849l745 745-47 47ZM306.67-323.33V-390H597l66.67 66.67h-357ZM202-446.67v-66.66h66.67v66.66H202Zm122.67 0v-66.66h66.66v66.66h-66.66Zm366.66 0v-66.66H758v66.66h-66.67ZM202-570v-66.67h66.67V-570H202Zm367.33 0v-66.67H636V-570h-66.67Zm122 0v-66.67H758V-570h-66.67ZM860-221l-46.67-47.67v-424.66H389L322.33-760h491q27 0 46.84 19.83Q880-720.33 880-693.33v425.66q0 13.67-5.5 25.67-5.5 12-14.5 21Zm-713.33 21q-27 0-46.84-20.17Q80-240.33 80-266.67v-426.66q0-27 19.83-46.84Q119.67-760 146.67-760H227l66.67 66.67h-147v426.66h573.66L787-200H146.67Zm299-436.67h67.66v66.34l-67.66-66.34Zm123 123.34H636V-447l-67.33-66.33ZM412.33-480Zm188.34-1.33Z"/>
+                    </svg>
+                  ) : (
+                    getKeyDisplay(key)
+                  )}
                 </button>
               ))}
             </div>

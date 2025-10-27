@@ -358,7 +358,7 @@ export const DEFAULT_SETTINGS: KeyboardSettings = {
   
   // Layout Settings
   layout: {
-    scale: 'large',
+    scale: 'small',
     customWidth: undefined,
     
     keySize: 'normal',
