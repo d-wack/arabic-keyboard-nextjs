@@ -4,12 +4,99 @@ import { useSettings } from '@/context/SettingsContext';
 import { THEME_PRESETS } from '@/config/defaultSettings';
 
 export default function SettingsTestPanel() {
-  const { settings, updateLayout, updateTheme, applyPreset, resetSettings } = useSettings();
+  const { settings, updateLayout, updateTheme, updateSound, applyPreset, resetSettings } = useSettings();
 
   return (
-    <div className="fixed top-4 right-4 z-50 bg-white p-4 rounded-lg shadow-xl border-2 border-gray-200 max-w-xs">
+    <div className="fixed top-4 right-4 z-50 bg-white p-4 rounded-lg shadow-xl border-2 border-gray-200 max-w-xs max-h-[90vh] overflow-y-auto">
       <h3 className="font-bold text-lg mb-3 text-gray-900">⚙️ Settings Test Panel</h3>
       
+      {/* Sound Settings */}
+      <div className="mb-4 p-3 bg-blue-50 rounded border border-blue-200">
+        <h4 className="font-semibold text-sm mb-2 text-gray-900">🔊 Sound Settings</h4>
+        
+        {/* Master Sound Toggle */}
+        <div className="mb-3 flex items-center justify-between">
+          <label className="text-sm font-medium text-gray-800">Enable Sound:</label>
+          <input
+            type="checkbox"
+            checked={settings.sound.soundEnabled}
+            onChange={(e) => updateSound({ soundEnabled: e.target.checked })}
+            className="w-5 h-5 cursor-pointer"
+          />
+        </div>
+
+        {/* Master Volume */}
+        <div className="mb-3">
+          <label className="block text-sm font-medium mb-1 text-gray-800">
+            Master Volume: {settings.sound.masterVolume}%
+          </label>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            value={settings.sound.masterVolume}
+            onChange={(e) => updateSound({ masterVolume: parseInt(e.target.value) })}
+            disabled={!settings.sound.soundEnabled}
+            className="w-full"
+          />
+        </div>
+
+        {/* Keypress Sound Toggle */}
+        <div className="mb-2 flex items-center justify-between">
+          <label className="text-sm text-gray-700">Keypress Sound:</label>
+          <input
+            type="checkbox"
+            checked={settings.sound.clickSoundEnabled}
+            onChange={(e) => updateSound({ clickSoundEnabled: e.target.checked })}
+            disabled={!settings.sound.soundEnabled}
+            className="w-4 h-4 cursor-pointer"
+          />
+        </div>
+
+        {/* Keypress Volume */}
+        <div className="mb-3">
+          <label className="block text-xs text-gray-700 mb-1">
+            Keypress Vol: {settings.sound.clickSoundVolume}%
+          </label>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            value={settings.sound.clickSoundVolume}
+            onChange={(e) => updateSound({ clickSoundVolume: parseInt(e.target.value) })}
+            disabled={!settings.sound.soundEnabled || !settings.sound.clickSoundEnabled}
+            className="w-full"
+          />
+        </div>
+
+        {/* Open/Close Sound Toggle */}
+        <div className="mb-2 flex items-center justify-between">
+          <label className="text-sm text-gray-700">Open/Close Sound:</label>
+          <input
+            type="checkbox"
+            checked={settings.sound.openCloseSoundEnabled}
+            onChange={(e) => updateSound({ openCloseSoundEnabled: e.target.checked })}
+            disabled={!settings.sound.soundEnabled}
+            className="w-4 h-4 cursor-pointer"
+          />
+        </div>
+
+        {/* Open/Close Volume */}
+        <div className="mb-2">
+          <label className="block text-xs text-gray-700 mb-1">
+            Open/Close Vol: {settings.sound.openCloseSoundVolume}%
+          </label>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            value={settings.sound.openCloseSoundVolume}
+            onChange={(e) => updateSound({ openCloseSoundVolume: parseInt(e.target.value) })}
+            disabled={!settings.sound.soundEnabled || !settings.sound.openCloseSoundEnabled}
+            className="w-full"
+          />
+        </div>
+      </div>
       {/* Theme Preset */}
       <div className="mb-4">
         <label className="block text-sm font-semibold mb-2 text-gray-800">Theme Preset:</label>
