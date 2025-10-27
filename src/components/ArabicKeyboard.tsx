@@ -194,7 +194,15 @@ const ArabicKeyboard: React.FC<ArabicKeyboardProps> = ({ isVisible, onToggle, on
   };
 
   const handleKeyClick = (key: Key) => {
-    // Play sound and trigger haptic feedback
+    // Handle close button separately - only play open-close sound
+    if (key.special === 'close') {
+      playSound('open-close', settings);
+      triggerHaptic('open-close', settings);
+      onToggle();
+      return;
+    }
+    
+    // Play sound and trigger haptic feedback for all other keys
     playSound('click', settings);
     triggerHaptic('key-press', settings);
     
@@ -206,11 +214,6 @@ const ArabicKeyboard: React.FC<ArabicKeyboardProps> = ({ isVisible, onToggle, on
       handleSpace();
     } else if (key.special === 'clear') {
       handleClear();
-    } else if (key.special === 'close') {
-      playSound('open-close', settings);
-      triggerHaptic('open-close', settings);
-      onToggle();
-      return;
     } else if (key.special === 'ctrl') {
       setIsCtrlPressed(!isCtrlPressed);
       textAreaRef.current?.focus();

@@ -413,8 +413,8 @@ export const DEFAULT_SETTINGS: KeyboardSettings = {
   // Sound Settings
   sound: {
     clickSound: 'custom',
-    clickSoundVolume: 60,
-    clickSoundFile: '/sounds/keypress.ogg',
+    clickSoundVolume: 40,
+    clickSoundFile: '/sounds/ui_tap-variant-04.ogg',
     
     openCloseSound: 'custom',
     openCloseSoundVolume: 70,
